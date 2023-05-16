@@ -27,9 +27,10 @@
   { amount: uint, commission: uint, status: uint }  
 )
 
-(define-constant err-creator-only (err u100))
-(define-constant err-publisher-only (err u101))
-(define-constant err-purchaser-only (err u102))
+(define-constant err-droplinked-only (err u100))
+(define-constant err-creator-only (err u101))
+(define-constant err-publisher-only (err u102))
+(define-constant err-purchaser-only (err u103))
 
 (define-constant err-invalid-sku (err u200))
 (define-constant err-invalid-creator (err u201))
@@ -40,6 +41,7 @@
 
 (define-constant err-insufficient-publisher-balance (err u206))
 (define-constant err-insufficient-creator-balance (err u206))
+(define-constant err-insufficient-sender-balance (err u207))
 
 (define-constant err-request-pending (err u400))
 (define-constant err-request-not-pending (err u401))
@@ -162,6 +164,23 @@
     (try! (burn-and-mint { id: id, owner: purchaser} ))
     (map-set balances { id: id, owner: publisher } (- publisher-balance u1))
     (map-set balances { id: id, owner: purchaser } (+ (default-to u0 (map-get? balances { id: id, owner: purchaser })) u1))
+    (ok true)
+  )
+)
+
+(define-public (transfer (id uint) (amount uint) (sender principal) (recipient principal))
+  (let
+    (
+      (sender-balance (unwrap-panic (get-balance id sender)))
+      (recipient-balance (unwrap-panic (get-balance id recipient)))
+    )
+    (asserts! (is-eq contract-caller (as-contract contract-caller)) err-droplinked-only)
+    (asserts! (>= sender-balance amount) err-insufficient-sender-balance)
+    (try! (ft-transfer? product amount sender recipient))
+    (try! (burn-and-mint { id: id, owner: sender }))
+    (try! (burn-and-mint { id: id, owner: recipient }))
+    (map-set balances { id: id, owner: sender } (- sender-balance amount))
+    (map-set balances { id: id, owner: recipient } (- recipient-balance amount))
     (ok true)
   )
 )
