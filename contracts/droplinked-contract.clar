@@ -170,6 +170,10 @@
   (ok (default-to u0 (map-get? balances { id: id, owner: owner })))
 )
 
+(define-read-only (get-overall-balance (owner principal)) 
+  (ok (ft-get-balance product owner))
+)
+
 (define-read-only (get-decimals (id uint))
   (ok u0)
 )
