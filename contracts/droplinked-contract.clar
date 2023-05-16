@@ -185,6 +185,14 @@
   )
 )
 
+(define-public (transfer-memo (id uint) (amount uint) (sender principal) (recipient principal) (memo (buff 34))) 
+  (begin 
+    (try! (transfer id amount sender recipient))
+    (print memo)
+    (ok true)
+  )
+)
+
 (define-read-only (get-balance (id uint) (owner principal))
   (ok (default-to u0 (map-get? balances { id: id, owner: owner })))
 )
