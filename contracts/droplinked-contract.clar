@@ -174,6 +174,10 @@
   (ok (ft-get-balance product owner))
 )
 
+(define-read-only (get-overall-supply)
+  (ok (ft-get-supply product))
+)
+
 (define-read-only (get-decimals (id uint))
   (ok u0)
 )
