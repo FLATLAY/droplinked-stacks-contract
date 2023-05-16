@@ -1,3 +1,5 @@
+(impl-trait .sft-trait.sft-trait)
+
 (define-constant droplinked-public 0x031a5d135011eda489132db757fab241a1cf12f869a1dd7cc086429507116a2ba6)
 (define-constant droplinked 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6)
 
@@ -162,6 +164,10 @@
     (map-set balances { id: id, owner: purchaser } (+ (default-to u0 (map-get? balances { id: id, owner: purchaser })) u1))
     (ok true)
   )
+)
+
+(define-read-only (get-balance (id uint) (owner principal))
+  (ok (default-to u0 (map-get? balances { id: id, owner: owner })))
 )
 
 (define-read-only (verify-droplinked-signature? (message (buff 16)) (droplinked-signature (buff 65))) 
