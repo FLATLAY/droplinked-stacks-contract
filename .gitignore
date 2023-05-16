@@ -1,0 +1,10 @@
+# cache
+.cache/**
+
+# settings
+**/settings/Mainnet.toml
+**/settings/Testnet.toml
+
+# history files
+history.txt
+*.history
