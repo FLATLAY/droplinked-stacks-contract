@@ -182,6 +182,10 @@
   (ok u0)
 )
 
+(define-read-only (get-token-uri (id uint))
+  (ok (map-get? uris id))
+)
+
 (define-read-only (verify-droplinked-signature? (message (buff 16)) (droplinked-signature (buff 65))) 
   (secp256k1-verify (sha256 message) droplinked-signature droplinked-public)
 )
