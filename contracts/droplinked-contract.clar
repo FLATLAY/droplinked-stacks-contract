@@ -69,6 +69,7 @@
     (map-insert supplies id amount)
     (map-insert prices id price)
     (map-insert uris id uri)
+    (print { type: "sft_mint", token-id: id, amount: amount, recipient: creator })
     (ok id)
   )
 )
