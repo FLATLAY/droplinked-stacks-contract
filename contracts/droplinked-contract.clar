@@ -179,6 +179,7 @@
     (try! (burn-and-mint { id: id, owner: recipient }))
     (map-set balances { id: id, owner: sender } (- sender-balance amount))
     (map-set balances { id: id, owner: recipient } (- recipient-balance amount))
+    (print { type: "sft_transfer", token-id: id, amount: amount, sender: sender, recipient: recipient })
     (ok true)
   )
 )
