@@ -178,6 +178,10 @@
   (ok (ft-get-supply product))
 )
 
+(define-read-only (get-total-supply (id uint)) 
+  (ok (default-to u0 (map-get? supplies id)))
+)
+
 (define-read-only (get-decimals (id uint))
   (ok u0)
 )
