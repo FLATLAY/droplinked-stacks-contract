@@ -1,3 +1,5 @@
+(impl-trait .sft-trait.sft-trait)
+
 (define-constant droplinked-public 0x031a5d135011eda489132db757fab241a1cf12f869a1dd7cc086429507116a2ba6)
 (define-constant droplinked 'STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6)
 
@@ -25,9 +27,10 @@
   { amount: uint, commission: uint, status: uint }  
 )
 
-(define-constant err-creator-only (err u100))
-(define-constant err-publisher-only (err u101))
-(define-constant err-purchaser-only (err u102))
+(define-constant err-droplinked-only (err u100))
+(define-constant err-creator-only (err u101))
+(define-constant err-publisher-only (err u102))
+(define-constant err-purchaser-only (err u103))
 
 (define-constant err-invalid-sku (err u200))
 (define-constant err-invalid-creator (err u201))
@@ -38,6 +41,7 @@
 
 (define-constant err-insufficient-publisher-balance (err u206))
 (define-constant err-insufficient-creator-balance (err u206))
+(define-constant err-insufficient-sender-balance (err u207))
 
 (define-constant err-request-pending (err u400))
 (define-constant err-request-not-pending (err u401))
@@ -65,6 +69,7 @@
     (map-insert supplies id amount)
     (map-insert prices id price)
     (map-insert uris id uri)
+    (print { type: "sft_mint", token-id: id, amount: amount, recipient: creator })
     (ok id)
   )
 )
@@ -101,11 +106,7 @@
     (asserts! (is-eq contract-caller creator) err-creator-only)
     (asserts! (is-eq status request-status-pending) err-request-not-pending)
     (asserts! (>= creator-balance amount) err-invalid-amount)
-    (try! (ft-transfer? product amount creator publisher))
-    (try! (burn-and-mint { id: id, owner: creator} ))
-    (try! (burn-and-mint { id: id, owner: publisher} ))
-    (map-set balances { id: id, owner: creator } (- creator-balance amount))
-    (map-set balances { id: id, owner: publisher } (+ (default-to u0 (map-get? balances { id: id, owner: publisher })) u1))
+    (try! (as-contract (transfer id amount creator publisher)))
     (map-set commissions { id: id, publisher: publisher } commission)
     (map-set requests { id: id, publisher: publisher } (merge request { status: request-status-accepted }))
     (ok true)
@@ -156,12 +157,59 @@
       )
     )
     (try! (ft-transfer? product u1 publisher purchaser))
-    (try! (burn-and-mint { id: id, owner: publisher} ))
-    (try! (burn-and-mint { id: id, owner: purchaser} ))
-    (map-set balances { id: id, owner: publisher } (- publisher-balance u1))
-    (map-set balances { id: id, owner: purchaser } (+ (default-to u0 (map-get? balances { id: id, owner: purchaser })) u1))
+    (try! (as-contract (transfer id u1 publisher purchaser)))
     (ok true)
   )
+)
+
+(define-public (transfer (id uint) (amount uint) (sender principal) (recipient principal))
+  (let
+    (
+      (sender-balance (unwrap-panic (get-balance id sender)))
+      (recipient-balance (unwrap-panic (get-balance id recipient)))
+    )
+    (asserts! (is-eq contract-caller (as-contract contract-caller)) err-droplinked-only)
+    (asserts! (>= sender-balance amount) err-insufficient-sender-balance)
+    (try! (ft-transfer? product amount sender recipient))
+    (try! (burn-and-mint { id: id, owner: sender }))
+    (try! (burn-and-mint { id: id, owner: recipient }))
+    (map-set balances { id: id, owner: sender } (- sender-balance amount))
+    (map-set balances { id: id, owner: recipient } (- recipient-balance amount))
+    (print { type: "sft_transfer", token-id: id, amount: amount, sender: sender, recipient: recipient })
+    (ok true)
+  )
+)
+
+(define-public (transfer-memo (id uint) (amount uint) (sender principal) (recipient principal) (memo (buff 34))) 
+  (begin 
+    (try! (transfer id amount sender recipient))
+    (print memo)
+    (ok true)
+  )
+)
+
+(define-read-only (get-balance (id uint) (owner principal))
+  (ok (default-to u0 (map-get? balances { id: id, owner: owner })))
+)
+
+(define-read-only (get-overall-balance (owner principal)) 
+  (ok (ft-get-balance product owner))
+)
+
+(define-read-only (get-overall-supply)
+  (ok (ft-get-supply product))
+)
+
+(define-read-only (get-total-supply (id uint)) 
+  (ok (default-to u0 (map-get? supplies id)))
+)
+
+(define-read-only (get-decimals (id uint))
+  (ok u0)
+)
+
+(define-read-only (get-token-uri (id uint))
+  (ok (map-get? uris id))
 )
 
 (define-read-only (verify-droplinked-signature? (message (buff 16)) (droplinked-signature (buff 65))) 
