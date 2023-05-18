@@ -9,7 +9,7 @@ import { assertEquals } from 'https://deno.land/std@0.170.0/testing/asserts.ts'
 import { uintValue } from './utils/clarity.utils.ts'
 
 Clarinet.test({
-	name: 'droplinked:create: should update the maps and return the correct result when creating a new SKU',
+	name: 'droplinked:create should return the correct result and update the maps when creating a new SKU',
 	fn(chain: Chain, accounts: Map<string, Account>) {
 		const deployer = accounts.get('deployer')!
 		const creator = accounts.get('wallet_1')!
@@ -148,7 +148,7 @@ Clarinet.test({
 })
 
 Clarinet.test({
-	name: 'droplinked:create: should return error when creator is not contract caller',
+	name: 'droplinked:create should return error when creator is not contract caller',
 	fn(chain: Chain, accounts: Map<string, Account>) {
 		const deployer = accounts.get('deployer')!
 		const creator = accounts.get('wallet_1')!
@@ -181,7 +181,7 @@ Clarinet.test({
 })
 
 Clarinet.test({
-	name: 'droplinked:create: should return error when amount is 0',
+	name: 'droplinked:create should return error when amount is 0',
 	fn(chain: Chain, accounts: Map<string, Account>) {
 		const deployer = accounts.get('deployer')!
 		const creator = accounts.get('wallet_1')!
@@ -214,7 +214,7 @@ Clarinet.test({
 })
 
 Clarinet.test({
-	name: 'droplinked:create: should return error when price is 0',
+	name: 'droplinked:create should return error when price is 0',
 	fn(chain: Chain, accounts: Map<string, Account>) {
 		const deployer = accounts.get('deployer')!
 		const creator = accounts.get('wallet_1')!
@@ -247,7 +247,7 @@ Clarinet.test({
 })
 
 Clarinet.test({
-	name: 'droplinked:create: should return error when commission is greater than 100',
+	name: 'droplinked:create should return error when commission is greater than 100',
 	fn(chain: Chain, accounts: Map<string, Account>) {
 		const deployer = accounts.get('deployer')!
 		const creator = accounts.get('wallet_1')!
@@ -280,7 +280,7 @@ Clarinet.test({
 })
 
 Clarinet.test({
-	name: 'droplinked:create: should return error when uri is empty',
+	name: 'droplinked:create should return error when uri is empty',
 	fn(chain: Chain, accounts: Map<string, Account>) {
 		const deployer = accounts.get('deployer')!
 		const creator = accounts.get('wallet_1')!
