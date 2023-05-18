@@ -70,6 +70,7 @@
     (map-insert prices id price)
     (map-insert uris id uri)
     (print { type: "sft_mint", token-id: id, amount: amount, recipient: creator })
+    (var-set last-sku-id id)
     (ok id)
   )
 )
@@ -222,6 +223,10 @@
 
 (define-read-only (get-price (id uint)) 
   (ok (map-get? prices id))
+)
+
+(define-read-only (get-last-sku-id) 
+  (ok (var-get last-sku-id))
 )
 
 (define-read-only (verify-droplinked-signature? (message (buff 16)) (droplinked-signature (buff 65))) 
