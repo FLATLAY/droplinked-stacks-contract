@@ -21,7 +21,7 @@ Clarinet.test({
 		const amount = 10000
 		const price = 25
 		const commission = 50
-		const uri = 'ipfs://droplinked-sku'
+		const uri = 'ipfs://droplinked'
 
 		const block = chain.mineBlock([
 			Tx.contractCall(
@@ -60,8 +60,11 @@ Clarinet.test({
 		).assetId
 
 		// droplinked:create should emit sft mint event
-		block.receipts[0].events.expectPrintEvent(droplinkedContract, 
-			`{amount: ${types.uint(amount)}, recipient: ${creator.address}, token-id: ${types.uint(createdSkuId)}, type: "sft_mint"}`
+		block.receipts[0].events.expectPrintEvent(
+			droplinkedContract,
+			`{amount: ${types.uint(amount)}, recipient: ${
+				creator.address
+			}, token-id: ${types.uint(createdSkuId)}, type: "sft_mint"}`
 		)
 
 		// droplinked:create should update commissions map
@@ -130,5 +133,16 @@ Clarinet.test({
 			.result.expectOk()
 			.expectSome()
 			.expectAscii(uri)
+
+		// droplinked:craete should update last sku id variable
+		chain
+			.callReadOnlyFn(
+				droplinkedContract,
+				'get-last-sku-id',
+				[],
+				creator.address
+			)
+			.result.expectOk()
+			.expectUint(createdSkuId)
 	},
 })
