@@ -1,26 +1,41 @@
-
-import { Clarinet, Tx, Chain, Account, types } from 'https://deno.land/x/clarinet@v1.5.4/index.ts';
-import { assertEquals } from 'https://deno.land/std@0.170.0/testing/asserts.ts';
+import {
+	Clarinet,
+	Tx,
+	Chain,
+	Account,
+	types,
+} from 'https://deno.land/x/clarinet@v1.5.4/index.ts'
+import { assertEquals } from 'https://deno.land/std@0.170.0/testing/asserts.ts'
 
 Clarinet.test({
-    name: "Ensure that <...>",
-    async fn(chain: Chain, accounts: Map<string, Account>) {
-        // arrange: set up the chain, state, and other required elements
-        let wallet_1 = accounts.get("wallet_1")!;
+	name: 'droplinked:create',
+	fn(chain: Chain, accounts: Map<string, Account>) {
+		const deployer = accounts.get('deployer')!
+		const creator = accounts.get('wallet_1')!
 
-        // act: perform actions related to the current test
-        let block = chain.mineBlock([
-            /*
-             * Add transactions with:
-             * Tx.contractCall(...)
-            */
-        ]);
+		const droplinkedContract = deployer.address + '.droplinked-contract'
+		const commission = 50
 
-        // assert: review returned data, contract state, and other requirements
-        assertEquals(block.receipts.length, 0);
-        assertEquals(block.height, 2);
+		const block = chain.mineBlock([
+			Tx.contractCall(
+				droplinkedContract,
+				'create',
+				[
+					types.uint(10000),
+					types.uint(25),
+					types.uint(commission),
+					types.ascii('ipfs://'),
+					types.principal(creator.address),
+				],
+				creator.address
+			),
+		])
 
-        // TODO
-        assertEquals("TODO", "a complete test");
-    },
-});
+		Clarinet.test({
+			name: 'should return ok response with sku id',
+			fn: () => {
+				assertEquals(block.receipts[0].result, types.ok(types.uint(1)))
+			},
+		})
+	},
+})
