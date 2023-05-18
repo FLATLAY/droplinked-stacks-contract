@@ -213,7 +213,6 @@ Clarinet.test({
 	},
 })
 
-
 Clarinet.test({
 	name: 'droplinked:create: should return error when commission is greater than 100',
 	fn(chain: Chain, accounts: Map<string, Account>) {
@@ -244,5 +243,38 @@ Clarinet.test({
 
 		// droplinked:create should return error when commission is greater than 100
 		block.receipts[0].result.expectErr().expectUint(303)
+	},
+})
+
+Clarinet.test({
+	name: 'droplinked:create: should return error when uri is empty',
+	fn(chain: Chain, accounts: Map<string, Account>) {
+		const deployer = accounts.get('deployer')!
+		const creator = accounts.get('wallet_1')!
+
+		const droplinkedContract = deployer.address + '.droplinked-contract'
+
+		const amount = 10000
+		const price = 25
+		const commission = 50
+		const uri = ''
+
+		const block = chain.mineBlock([
+			Tx.contractCall(
+				droplinkedContract,
+				'create',
+				[
+					types.uint(amount),
+					types.uint(price),
+					types.uint(commission),
+					types.ascii(uri),
+					types.principal(creator.address),
+				],
+				creator.address
+			),
+		])
+
+		// droplinked:create should return error when uri is empty
+		block.receipts[0].result.expectErr().expectUint(302)
 	},
 })
