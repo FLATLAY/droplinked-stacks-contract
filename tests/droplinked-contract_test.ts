@@ -6,10 +6,10 @@ import {
 	types,
 } from 'https://deno.land/x/clarinet@v1.5.4/index.ts'
 import { assertEquals } from 'https://deno.land/std@0.170.0/testing/asserts.ts'
-import { uintValue } from './utils/clarity.util.ts'
+import { uintValue } from './utils/clarity.utils.ts'
 
 Clarinet.test({
-	name: 'droplinked:create: should update the maps and return the correct result when creating a new SKU',
+	name: 'droplinked:create should return the correct result and update the maps when creating a new SKU',
 	fn(chain: Chain, accounts: Map<string, Account>) {
 		const deployer = accounts.get('deployer')!
 		const creator = accounts.get('wallet_1')!
@@ -144,5 +144,170 @@ Clarinet.test({
 			)
 			.result.expectOk()
 			.expectUint(createdSkuId)
+	},
+})
+
+Clarinet.test({
+	name: 'droplinked:create should return error when creator is not contract caller',
+	fn(chain: Chain, accounts: Map<string, Account>) {
+		const deployer = accounts.get('deployer')!
+		const creator = accounts.get('wallet_1')!
+
+		const droplinkedContract = deployer.address + '.droplinked-contract'
+
+		const amount = 10000
+		const price = 25
+		const commission = 50
+		const uri = 'ipfs://droplinked'
+
+		const block = chain.mineBlock([
+			Tx.contractCall(
+				droplinkedContract,
+				'create',
+				[
+					types.uint(amount),
+					types.uint(price),
+					types.uint(commission),
+					types.ascii(uri),
+					types.principal(creator.address),
+				],
+				deployer.address
+			),
+		])
+
+		// droplinked:create should return error if creator is not contract caller
+		block.receipts[0].result.expectErr().expectUint(101)
+	},
+})
+
+Clarinet.test({
+	name: 'droplinked:create should return error when amount is 0',
+	fn(chain: Chain, accounts: Map<string, Account>) {
+		const deployer = accounts.get('deployer')!
+		const creator = accounts.get('wallet_1')!
+
+		const droplinkedContract = deployer.address + '.droplinked-contract'
+
+		const amount = 0
+		const price = 25
+		const commission = 50
+		const uri = 'ipfs://droplinked'
+
+		const block = chain.mineBlock([
+			Tx.contractCall(
+				droplinkedContract,
+				'create',
+				[
+					types.uint(amount),
+					types.uint(price),
+					types.uint(commission),
+					types.ascii(uri),
+					types.principal(creator.address),
+				],
+				creator.address
+			),
+		])
+
+		// droplinked:create should return error when amount is 0
+		block.receipts[0].result.expectErr().expectUint(300)
+	},
+})
+
+Clarinet.test({
+	name: 'droplinked:create should return error when price is 0',
+	fn(chain: Chain, accounts: Map<string, Account>) {
+		const deployer = accounts.get('deployer')!
+		const creator = accounts.get('wallet_1')!
+
+		const droplinkedContract = deployer.address + '.droplinked-contract'
+
+		const amount = 10000
+		const price = 0
+		const commission = 50
+		const uri = 'ipfs://droplinked'
+
+		const block = chain.mineBlock([
+			Tx.contractCall(
+				droplinkedContract,
+				'create',
+				[
+					types.uint(amount),
+					types.uint(price),
+					types.uint(commission),
+					types.ascii(uri),
+					types.principal(creator.address),
+				],
+				creator.address
+			),
+		])
+
+		// droplinked:create should return error when price is 0
+		block.receipts[0].result.expectErr().expectUint(301)
+	},
+})
+
+Clarinet.test({
+	name: 'droplinked:create should return error when commission is greater than 100',
+	fn(chain: Chain, accounts: Map<string, Account>) {
+		const deployer = accounts.get('deployer')!
+		const creator = accounts.get('wallet_1')!
+
+		const droplinkedContract = deployer.address + '.droplinked-contract'
+
+		const amount = 10000
+		const price = 25
+		const commission = 101
+		const uri = 'ipfs://droplinked'
+
+		const block = chain.mineBlock([
+			Tx.contractCall(
+				droplinkedContract,
+				'create',
+				[
+					types.uint(amount),
+					types.uint(price),
+					types.uint(commission),
+					types.ascii(uri),
+					types.principal(creator.address),
+				],
+				creator.address
+			),
+		])
+
+		// droplinked:create should return error when commission is greater than 100
+		block.receipts[0].result.expectErr().expectUint(303)
+	},
+})
+
+Clarinet.test({
+	name: 'droplinked:create should return error when uri is empty',
+	fn(chain: Chain, accounts: Map<string, Account>) {
+		const deployer = accounts.get('deployer')!
+		const creator = accounts.get('wallet_1')!
+
+		const droplinkedContract = deployer.address + '.droplinked-contract'
+
+		const amount = 10000
+		const price = 25
+		const commission = 50
+		const uri = ''
+
+		const block = chain.mineBlock([
+			Tx.contractCall(
+				droplinkedContract,
+				'create',
+				[
+					types.uint(amount),
+					types.uint(price),
+					types.uint(commission),
+					types.ascii(uri),
+					types.principal(creator.address),
+				],
+				creator.address
+			),
+		])
+
+		// droplinked:create should return error when uri is empty
+		block.receipts[0].result.expectErr().expectUint(302)
 	},
 })
