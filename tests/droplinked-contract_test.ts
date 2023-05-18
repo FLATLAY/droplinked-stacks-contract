@@ -148,7 +148,7 @@ Clarinet.test({
 })
 
 Clarinet.test({
-	name: 'droplinked:create: should retrun error when amount is 0',
+	name: 'droplinked:create: should return error when amount is 0',
 	fn(chain: Chain, accounts: Map<string, Account>) {
 		const deployer = accounts.get('deployer')!
 		const creator = accounts.get('wallet_1')!
