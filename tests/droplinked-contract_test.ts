@@ -18,6 +18,7 @@ Clarinet.test({
 		const amount = 10000
 		const price = 25
 		const commission = 50
+		const uri = 'ipfs://droplinked-sku'
 
 		const block = chain.mineBlock([
 			Tx.contractCall(
@@ -27,7 +28,7 @@ Clarinet.test({
 					types.uint(amount),
 					types.uint(price),
 					types.uint(commission),
-					types.ascii('ipfs://'),
+					types.ascii(uri),
 					types.principal(creator.address),
 				],
 				creator.address
@@ -83,5 +84,16 @@ Clarinet.test({
 			.result.expectOk()
 			.expectSome()
 			.expectUint(price)
+
+		// droplinked:create should update supplies map
+		chain
+			.callReadOnlyFn(
+				droplinkedContract,
+				'get-total-supply',
+				[types.uint(createdSkuId)],
+				creator.address
+			)
+			.result.expectOk()
+			.expectUint(amount)
 	},
 })
