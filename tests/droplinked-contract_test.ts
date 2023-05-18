@@ -91,5 +91,19 @@ Clarinet.test({
 				assertEquals(balanceResult, types.ok(types.some(types.uint(amount))))
 			},
 		})
+
+		Clarinet.test({
+			name: 'should update prices map',
+			fn: () => {
+				const balanceResult = chain.callReadOnlyFn(
+					droplinkedContract,
+					'get-price',
+					[types.uint(createdSkuId), types.principal(creator.address)],
+					creator.address
+				).result
+
+				assertEquals(balanceResult, types.ok(types.some(types.uint(22))))
+			},
+		})
 	},
 })
