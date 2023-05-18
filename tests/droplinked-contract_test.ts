@@ -223,7 +223,7 @@ Clarinet.test({
 
 		const amount = 10000
 		const price = 25
-		const commission = 110
+		const commission = 101
 		const uri = 'ipfs://droplinked'
 
 		const block = chain.mineBlock([
