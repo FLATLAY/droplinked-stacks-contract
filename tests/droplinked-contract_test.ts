@@ -6,7 +6,7 @@ import {
 	types,
 } from 'https://deno.land/x/clarinet@v1.5.4/index.ts'
 import { assertEquals } from 'https://deno.land/std@0.170.0/testing/asserts.ts'
-import { uintValue } from './utils/clarity.util.ts'
+import { uintValue } from './utils/clarity.utils.ts'
 
 Clarinet.test({
 	name: 'droplinked:create: should update the maps and return the correct result when creating a new SKU',
