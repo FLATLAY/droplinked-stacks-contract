@@ -15,14 +15,17 @@ Clarinet.test({
 		const creator = accounts.get('wallet_1')!
 
 		const droplinkedContract = deployer.address + '.droplinked-contract'
+		const amount = 10000
+		const price = 25
 		const commission = 50
+
 		const block = chain.mineBlock([
 			Tx.contractCall(
 				droplinkedContract,
 				'create',
 				[
-					types.uint(10000),
-					types.uint(25),
+					types.uint(amount),
+					types.uint(price),
 					types.uint(commission),
 					types.ascii('ipfs://'),
 					types.principal(creator.address),
@@ -72,6 +75,20 @@ Clarinet.test({
 					creatorsResult.result,
 					types.ok(types.some(types.principal(creator.address)))
 				)
+			},
+		})
+
+		Clarinet.test({
+			name: 'should update balances map',
+			fn: () => {
+				const balanceResult = chain.callReadOnlyFn(
+					droplinkedContract,
+					'get-balance',
+					[types.uint(createdSkuId), types.principal(creator.address)],
+					creator.address
+				).result
+
+				assertEquals(balanceResult, types.ok(types.some(types.uint(amount))))
 			},
 		})
 	},
