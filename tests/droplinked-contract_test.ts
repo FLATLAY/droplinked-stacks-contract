@@ -15,6 +15,9 @@ Clarinet.test({
 		const creator = accounts.get('wallet_1')!
 
 		const droplinkedContract = deployer.address + '.droplinked-contract'
+		const droplinkedProduct = 'product'
+		const droplinkedSKU = 'sku'
+
 		const amount = 10000
 		const price = 25
 		const commission = 50
@@ -40,6 +43,26 @@ Clarinet.test({
 
 		const createdSkuIdResult = block.receipts[0].result.expectOk()
 		const createdSkuId = uintValue(createdSkuIdResult)
+
+		// droplinked:create should emit fungible token mint event
+		block.receipts[0].events.expectFungibleTokenMintEvent(
+			amount,
+			creator.address,
+			droplinkedContract + '::' + droplinkedProduct
+		)
+
+		// droplinked:create should emit non-fungible token mint event
+		block.receipts[0].events.expectNonFungibleTokenMintEvent(
+			`{id: ${types.uint(createdSkuId)}, owner: ${creator.address}}`,
+			creator.address,
+			droplinkedContract,
+			droplinkedSKU
+		).assetId
+
+		// droplinked:create should emit sft mint event
+		block.receipts[0].events.expectPrintEvent(droplinkedContract, 
+			`{amount: ${types.uint(amount)}, recipient: ${creator.address}, token-id: ${types.uint(createdSkuId)}, type: "sft_mint"}`
+		)
 
 		// droplinked:create should update commissions map
 		const commissionResult = chain.callReadOnlyFn(
