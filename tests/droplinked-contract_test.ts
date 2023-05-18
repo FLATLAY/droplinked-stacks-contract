@@ -37,5 +37,22 @@ Clarinet.test({
 				assertEquals(block.receipts[0].result, types.ok(types.uint(1)))
 			},
 		})
+
+		Clarinet.test({
+			name: 'should update commissions map',
+			fn: () => {
+				const commissionResult = chain.callReadOnlyFn(
+					droplinkedContract,
+					'get-commission',
+					[types.uint(1), types.principal(creator.address)],
+					creator.address
+				).result
+
+				assertEquals(
+					commissionResult,
+					types.ok(types.some(types.uint(commission)))
+				)
+			},
+		})
 	},
 })
