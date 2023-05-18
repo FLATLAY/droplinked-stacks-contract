@@ -15,6 +15,8 @@ Clarinet.test({
 		const creator = accounts.get('wallet_1')!
 
 		const droplinkedContract = deployer.address + '.droplinked-contract'
+		const droplinkedProduct = droplinkedContract + '::product'
+
 		const amount = 10000
 		const price = 25
 		const commission = 50
@@ -37,6 +39,13 @@ Clarinet.test({
 
 		// droplinked:create should return ok response with sku id
 		assertEquals(block.receipts[0].result, types.ok(types.uint(1)))
+
+		// droplinked:create should emit fungible token mint event
+		block.receipts[0].events.expectFungibleTokenMintEvent(
+			amount,
+			creator.address,
+			droplinkedProduct
+		)
 
 		const createdSkuIdResult = block.receipts[0].result.expectOk()
 		const createdSkuId = uintValue(createdSkuIdResult)
