@@ -6,6 +6,7 @@ import {
 	types,
 } from 'https://deno.land/x/clarinet@v1.5.4/index.ts'
 import { assertEquals } from 'https://deno.land/std@0.170.0/testing/asserts.ts'
+import { uintValue } from './utils/clarity.util.ts'
 
 Clarinet.test({
 	name: 'droplinked:create',
@@ -15,7 +16,6 @@ Clarinet.test({
 
 		const droplinkedContract = deployer.address + '.droplinked-contract'
 		const commission = 50
-
 		const block = chain.mineBlock([
 			Tx.contractCall(
 				droplinkedContract,
@@ -38,13 +38,16 @@ Clarinet.test({
 			},
 		})
 
+		const createdSkuIdResult = block.receipts[0].result.expectOk()
+		const createdSkuId = uintValue(createdSkuIdResult)
+
 		Clarinet.test({
 			name: 'should update commissions map',
 			fn: () => {
 				const commissionResult = chain.callReadOnlyFn(
 					droplinkedContract,
 					'get-commission',
-					[types.uint(1), types.principal(creator.address)],
+					[types.uint(createdSkuId), types.principal(creator.address)],
 					creator.address
 				).result
 
@@ -61,11 +64,14 @@ Clarinet.test({
 				const creatorsResult = chain.callReadOnlyFn(
 					droplinkedContract,
 					'get-creator',
-					[types.uint(1)],
+					[types.uint(createdSkuId)],
 					creator.address
 				)
 
-				assertEquals(creatorsResult.result, types.ok(types.some(types.principal(creator.address))))
+				assertEquals(
+					creatorsResult.result,
+					types.ok(types.some(types.principal(creator.address)))
+				)
 			},
 		})
 	},
