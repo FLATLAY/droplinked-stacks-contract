@@ -95,5 +95,17 @@ Clarinet.test({
 			)
 			.result.expectOk()
 			.expectUint(amount)
+
+		// droplinked:craete should update uris map
+		chain
+			.callReadOnlyFn(
+				droplinkedContract,
+				'get-token-uri',
+				[types.uint(createdSkuId)],
+				creator.address
+			)
+			.result.expectOk()
+			.expectSome()
+			.expectAscii(uri)
 	},
 })
