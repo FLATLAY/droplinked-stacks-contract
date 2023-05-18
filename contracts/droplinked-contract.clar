@@ -224,6 +224,10 @@
   (ok (map-get? prices id))
 )
 
+(define-read-only (get-last-sku-id) 
+  (ok (var-get last-sku-id))
+)
+
 (define-read-only (verify-droplinked-signature? (message (buff 16)) (droplinked-signature (buff 65))) 
   (secp256k1-verify (sha256 message) droplinked-signature droplinked-public)
 )
