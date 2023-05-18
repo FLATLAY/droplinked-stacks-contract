@@ -54,5 +54,19 @@ Clarinet.test({
 				)
 			},
 		})
+
+		Clarinet.test({
+			name: 'should update creators map',
+			fn: () => {
+				const creatorsResult = chain.callReadOnlyFn(
+					droplinkedContract,
+					'get-creator',
+					[types.uint(1)],
+					creator.address
+				)
+
+				assertEquals(creatorsResult.result, types.ok(types.some(types.principal(creator.address))))
+			},
+		})
 	},
 })
