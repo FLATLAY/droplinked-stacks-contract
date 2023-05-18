@@ -70,6 +70,7 @@
     (map-insert prices id price)
     (map-insert uris id uri)
     (print { type: "sft_mint", token-id: id, amount: amount, recipient: creator })
+    (var-set last-sku-id id)
     (ok id)
   )
 )
