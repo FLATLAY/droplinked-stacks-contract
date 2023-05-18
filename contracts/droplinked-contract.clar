@@ -220,6 +220,10 @@
   (ok (map-get? creators id))
 )
 
+(define-read-only (get-price (id uint)) 
+  (ok (map-get? prices id))
+)
+
 (define-read-only (verify-droplinked-signature? (message (buff 16)) (droplinked-signature (buff 65))) 
   (secp256k1-verify (sha256 message) droplinked-signature droplinked-public)
 )
