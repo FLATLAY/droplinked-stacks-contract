@@ -146,3 +146,35 @@ Clarinet.test({
 			.expectUint(createdSkuId)
 	},
 })
+
+Clarinet.test({
+	name: 'droplinked:create: should retrun error when amount is 0',
+	fn(chain: Chain, accounts: Map<string, Account>) {
+		const creator = accounts.get('wallet_1')!
+
+		const droplinkedContract = deployer.address + '.droplinked-contract'
+
+		const amount = 0
+		const price = 25
+		const commission = 50
+		const uri = 'ipfs://droplinked'
+
+		const block = chain.mineBlock([
+			Tx.contractCall(
+				droplinkedContract,
+				'create',
+				[
+					types.uint(amount),
+					types.uint(price),
+					types.uint(commission),
+					types.ascii(uri),
+					types.principal(creator.address),
+				],
+				creator.address
+			),
+		])
+
+		// droplinked:create should return error when amount is 0
+		block.receipts[0].result.expectErr().expectUint(300)
+	},
+})
